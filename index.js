@@ -1,7 +1,7 @@
 const fs = require('fs'),
     { Client, } = require('discord.js')
 
-const { token, bypass } = require('./config.json')
+const { token, target } = require('./config.json')
 const client = new Client()
 
 let previousChannel, connection, dispather;
@@ -12,12 +12,12 @@ client
     .on('voiceStateUpdate', async (oldState, newState) => {
         if (newState.id == client.user.id) return
         if (newState.channelID !== null) previousChannel = newState.channelID
-        if (newState.channelID == null && !bypass.includes(newState.id) && !!previousChannel) {
+        if (newState.channelID == null && target.includes(newState.id) && !!previousChannel) {
             client.channels.cache.get(previousChannel).leave()
             return [previousChannel, dispather] = [null, null];
         }
 
-        if (bypass.includes(newState.id)) return
+        if (!target.includes(newState.id)) return
         let channel = client.channels.cache.get(newState.channelID)
         if (!channel) return
 
@@ -25,7 +25,7 @@ client
     })
     .on('guildMemberSpeaking', async (member, speaking) => {
         if (!connection) return
-        if (bypass.includes(member.user.id)) return
+        if (!target.includes(member.user.id)) return
 
         if (!dispather)
             dispather = connection.play(fs.createReadStream('./audio.mp3'), {
@@ -37,7 +37,7 @@ client
         }
     })
     .on('error', console.log)
-    .on('warn', console.log)
+    .on('warn', console.warn)
     .login(token)
 
 process.on('unhandledRejection', console.log)
