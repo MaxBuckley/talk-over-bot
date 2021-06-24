@@ -1,8 +1,9 @@
 const fs = require('fs'),
     { Client, } = require('discord.js')
 
-const { token, target } = require('./config.json')
+const { target } = require('./config.json')
 const client = new Client()
+const TOKEN = process.env.NODE_ENV['TOKEN'] || '';
 
 let previousChannel, connection, dispather;
 client
@@ -38,6 +39,6 @@ client
     })
     .on('error', console.log)
     .on('warn', console.warn)
-    .login(token)
+    .login(TOKEN)
 
 process.on('unhandledRejection', console.log)
